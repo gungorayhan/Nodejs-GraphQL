@@ -3,7 +3,7 @@ import User from "../models/user.model.js"
 import bcrypt from "bcryptjs"
 const userResolver ={
     Query:{
-        authUser:async(_,_,context)=>{
+        authUser:async(_,__,context)=>{
             try {
                 const user = await context.getUser()
                 return user;
@@ -72,20 +72,22 @@ const userResolver ={
                 throw new Error(err.message || "interval server error")
             }
         },
-        logout: async(_,_,context)=>{
+        logout: async(_,__,context)=>{
             try {
                 await context.logout()
                 req.session.destroy((err)=>{
-                    if(err) throw err
+                    if(err) throw err;
                 })
 
                 res.clearCookie("connect.sid");
                 return {message:"logged out successfully"} 
             } catch (error) {
-
+                console.log("Error in login: ", error)
+                throw new Error(err.message || "interval server error")
             }
         }
-    }
+    },
+    // TODO => ADD User/transaction relation
 }
 
-export default userResolver
+export default userResolver;
