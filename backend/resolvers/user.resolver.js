@@ -1,4 +1,5 @@
 import {users} from "../dummyData/data.js"
+import Transaction from "../models/transaction.model.js"
 import User from "../models/user.model.js"
 import bcrypt from "bcryptjs"
 const userResolver ={
@@ -75,11 +76,11 @@ const userResolver ={
         logout: async(_,__,context)=>{
             try {
                 await context.logout()
-                req.session.destroy((err)=>{
+                context.req.session.destroy((err)=>{
                     if(err) throw err;
                 })
 
-                res.clearCookie("connect.sid");
+                context.res.clearCookie("connect.sid");
                 return {message:"logged out successfully"} 
             } catch (error) {
                 console.log("Error in login: ", error)
@@ -88,6 +89,17 @@ const userResolver ={
         }
     },
     // TODO => ADD User/transaction relation
+    User: {
+		transactions: async (parent) => {
+			try {
+				const transactions = await Transaction.find({ userId: parent._id });
+				return transactions;
+			} catch (err) {
+				console.log("Error in user.transactions resolver: ", err);
+				throw new Error(err.message || "Internal server error");
+			}
+		},
+	},
 }
 
 export default userResolver;
